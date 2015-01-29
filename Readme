@@ -1,0 +1,139 @@
+Note:
+The ZIP contains 5 Folders.They are 
+
+1)NEW_RED ------------------------->contains sch_newred.c,	Makefile,	q_newred.c
+
+2)Adaptive_RED--------------------->contains sch_ared.c	,	Makefile,	q_ared.c
+	
+3)Weighted_RED--------------------->contains sch_wred.c,	Makefile,	q_wred.c
+
+4)RIO------------------------------>contains sch_redrio.c,	Makefile,	q_redrio.c
+
+5)Equalizing_RED------------------->contains sch_ered.c,	Makefile,	q_ered.c
+
+Kernel Version:"Linux Node1 3.13.0-24-generic #46-Ubuntu SMP Thu Apr 10 19:11:08 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux"
+
+Steps to be followed before running the code:
+1)run apt-get update in root
+2)run apt-get install linux-source
+3)run apt-get install flex
+4)run apt-get install bison
+5)run apt-get install pkg-config
+6)run wget https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-3.16.0.tar.xz
+7)run tar -xvf linux-source-313.0.tar.bz2
+8)run apt-get install iperf
+
+How to Implement the NEW_RED code:
+
+1)Copy sch_newred.c and Makefile to the root.
+2)run make 
+3)run insmod sch_newred.ko
+4)run cd iproute2-3.16.0
+5)run cd tc
+6)Copy q_newred.c to tc library
+7)run cd..
+8)run make TCSO=q_newred.so
+9)If want to load the qdisc in ethX run the following commands
+	TC_LIB_DIR='./tc' tc qdisc replace dev ethX root handle 1: htb default 101
+	TC_LIB_DIR='./tc' tc class replace dev ethX parent 1:0 classid 1:1 htb rate 50kbps
+	TC_LIB_DIR='./tc' tc class replace dev ethX parent 1:1 classid 1:101 htb rate 50kbps
+	TC_LIB_DIR='./tc' tc filter replace dev ethX parent 1:0 protocol ip handle 1 fw classid 1:101
+10)Decide on the parameter avpkt and limit and pass through like the command given below
+	TC_LIB_DIR='./tc' tc qdisc replace dev eth3 parent 1:101 newred limit 2000 avpkt 10 
+11)If we want to unload the Qdisc run the command as below giving the appropriate parameter avpkt and limit
+	TC_LIB_DIR='./tc' tc qdisc del dev eth3 parent 1:101 newred limit 2000 avpkt 10 
+12)go to root and run rmmod sch_newred.ko to remove the module
+
+
+How to Implement the Adaptive_RED code:
+
+1)Copy sch_ared.c and Makefile to the root.
+2)run make 
+3)run insmod sch_ared.ko
+4)run cd iproute2-3.16.0
+5)run cd tc
+6)Copy q_ared.c to tc library
+7)run cd..
+8)run make TCSO=q_ared.so
+9)If want to load the qdisc in ethX run the following commands
+	TC_LIB_DIR='./tc' tc qdisc replace dev ethX root handle 1: htb default 101
+	TC_LIB_DIR='./tc' tc class replace dev ethX parent 1:0 classid 1:1 htb rate 50kbps
+	TC_LIB_DIR='./tc' tc class replace dev ethX parent 1:1 classid 1:101 htb rate 50kbps
+	TC_LIB_DIR='./tc' tc filter replace dev ethX parent 1:0 protocol ip handle 1 fw classid 1:101
+10)Decide on the parameter avpkt and limit and pass through like the command given below
+	TC_LIB_DIR='./tc' tc qdisc replace dev eth3 parent 1:101 ared limit 2000 avpkt 10 
+11)If we want to unload the Qdisc run the command as below giving the appropriate parameter avpkt and limit
+	TC_LIB_DIR='./tc' tc qdisc del dev eth3 parent 1:101 ared limit 2000 avpkt 10 
+12)go to root and run rmmod sch_ared.ko to remove the module.
+
+How to Implement the Equalizing_RED code:
+
+1)Copy sch_ered.c and Makefile to the root.
+2)run make 
+3)run insmod sch_ered.ko
+4)run cd iproute2-3.16.0
+5)run cd tc
+6)Copy q_ered.c to tc library
+7)run cd..
+8)run make TCSO=q_ered.so
+9)If want to load the qdisc in ethX run the following commands
+	TC_LIB_DIR='./tc' tc qdisc replace dev ethX root handle 1: htb default 101
+	TC_LIB_DIR='./tc' tc class replace dev ethX parent 1:0 classid 1:1 htb rate 50kbps
+	TC_LIB_DIR='./tc' tc class replace dev ethX parent 1:1 classid 1:101 htb rate 50kbps
+	TC_LIB_DIR='./tc' tc filter replace dev ethX parent 1:0 protocol ip handle 1 fw classid 1:101
+10)Decide on the parameter avpkt,limit,tuning factor and pass through like the command given below
+	TC_LIB_DIR='./tc' tc qdisc replace dev eth3 parent 1:101 ered limit 2000 avpkt 10 factor 10
+11)If we want to unload the Qdisc run the command as below giving the appropriate parameter like avpkt,limit and tuning factor
+	TC_LIB_DIR='./tc' tc qdisc del dev eth3 parent 1:101 ered limit 2000 avpkt 10 factor 10
+12)go to root and run rmmod sch_ered.ko to remove the module.
+
+
+
+How to Implement the Weighted_RED code:
+
+1)Copy sch_wred.c and Makefile to the root.
+2)run make 
+3)run insmod sch_wred.ko
+4)run cd iproute2-3.16.0
+5)run cd tc
+6)Copy q_wred.c to tc library
+7)run cd..
+8)run make TCSO=q_wred.so
+9)If want to load the qdisc in ethX run the following commands
+	TC_LIB_DIR='./tc' tc qdisc replace dev ethX root handle 1: htb default 101
+	TC_LIB_DIR='./tc' tc class replace dev ethX parent 1:0 classid 1:1 htb rate 50kbps
+	TC_LIB_DIR='./tc' tc class replace dev ethX parent 1:1 classid 1:101 htb rate 50kbps
+	TC_LIB_DIR='./tc' tc filter replace dev ethX parent 1:0 protocol ip handle 1 fw classid 1:101
+10)Decide on the parameter avpkt,limit,decrement and pass through like the command given below
+	TC_LIB_DIR='./tc' tc qdisc replace dev eth3 parent 1:101 wred limit 2000 avpkt 10 decrement 100
+11)If we want to unload the Qdisc run the command as below giving the appropriate parameter like avpkt,limit and decrement 
+	TC_LIB_DIR='./tc' tc qdisc del dev eth3 parent 1:101 wred limit 2000 avpkt 10 decrement 100
+12)go to root and run rmmod sch_wred.ko to remove the module.
+
+
+How to Implement the RIO code:
+
+1)Copy sch_redrio.c and Makefile to the root.
+2)run make 
+3)run insmod sch_redrio.ko
+4)run cd iproute2-3.16.0
+5)run cd tc
+6)Copy q_redrio.c to tc library
+7)run cd..
+8)run make TCSO=q_redrio.so
+9)If want to load the qdisc in ethX run the following commands
+	TC_LIB_DIR='./tc' tc qdisc replace dev ethX root handle 1: htb default 101
+	TC_LIB_DIR='./tc' tc class replace dev ethX parent 1:0 classid 1:1 htb rate 50kbps
+	TC_LIB_DIR='./tc' tc class replace dev ethX parent 1:1 classid 1:101 htb rate 50kbps
+	TC_LIB_DIR='./tc' tc filter replace dev ethX parent 1:0 protocol ip handle 1 fw classid 1:101
+10)Decide on the parameter avpkt,limit,decrement and pass through like the command given below
+	TC_LIB_DIR='./tc' tc qdisc replace dev eth3 parent 1:101 redrio limit 2000 avpkt 10 decrement 100
+11)If we want to unload the Qdisc run the command as below giving the appropriate parameter like avpkt,limit and decrement 
+	TC_LIB_DIR='./tc' tc qdisc del dev eth3 parent 1:101 redrio limit 2000 avpkt 10 decrement 100
+12)go to root and run rmmod sch_redrio.ko to remove the module.
+
+
+
+
+
+
